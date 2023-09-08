@@ -57,31 +57,8 @@ boundToWorld();
         alignCamera();
 if(ableToMove){
     if(isPressing){
-        float mouseX = Gdx.input.getX();
-        float mouseY = Gdx.input.getY();
 
-        // Convert screen coordinates to world coordinates
-        Vector3 mousePos = new Vector3(mouseX, mouseY, 0);
-        getStage().getCamera().unproject(mousePos);
-
-        if (this.getCollisionRectangle().contains(mousePos.x, mousePos.y)){
-            ableToMove=false;
-        }
-
-        float actorX = getX();
-        float actorY = getY();
-
-        float angleRadians = MathUtils.atan2(mousePos.y - actorY, mousePos.x - actorX);
-        float angleDegrees = angleRadians * MathUtils.radiansToDegrees;
-
-if(ableToMove) {
-    accelerateAtAngle(angleDegrees);
-    applyPhysics(dt);
-
-    // Optionally, you can set the turtle's rotation to face the mouse cursor
-    setRotation(angleDegrees);
-
-}
+        turtleMouseInput(dt);
         setAbleToMove(true);
     }
     else if(!isPressing){
@@ -100,8 +77,31 @@ if(ableToMove) {
 
 
     private void turtleMouseInput(float dt){
+        float mouseX = Gdx.input.getX();
+        float mouseY = Gdx.input.getY();
 
+        // Convert screen coordinates to world coordinates
+        Vector3 mousePos = new Vector3(mouseX, mouseY, 0);
+        getStage().getCamera().unproject(mousePos);
 
+        if (this.getCollisionRectangle().contains(mousePos.x, mousePos.y)){
+            ableToMove=false;
+        }
+
+        float actorX = getX();
+        float actorY = getY();
+
+        float angleRadians = MathUtils.atan2(mousePos.y - actorY, mousePos.x - actorX);
+        float angleDegrees = angleRadians * MathUtils.radiansToDegrees;
+
+        if(ableToMove) {
+            accelerateAtAngle(angleDegrees);
+            applyPhysics(dt);
+
+            // Optionally, you can set the turtle's rotation to face the mouse cursor
+            setRotation(angleDegrees);
+
+        }
     }
 
     private void turtleInputs(float dt){

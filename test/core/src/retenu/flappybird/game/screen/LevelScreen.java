@@ -139,6 +139,13 @@ count++;
 
         starFishList=new ArrayList<>();
 
+        generateStars();
+
+
+
+    }
+
+    private void generateStars(){
         Action spin ;
 
         int minX =0;
@@ -147,14 +154,13 @@ count++;
         int minY= 0;
         int maxY = screenHeight ;
         int randomInt ;
-
-
         boolean loop;
 
         int loopCount=0;
 
+        int starFishNumber=10;
 
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < starFishNumber; i++) {
 
             StarFish starFish=new StarFish(); // Create a new StarFish object in each iteration
 
@@ -215,7 +221,6 @@ count++;
         }
 
         System.out.println("loop count" + loopCount);
-
     }
 
     private  boolean isStarPlace(BaseActor starFish){

@@ -40,10 +40,29 @@ public class BaseActor extends Actor {
         return acceleration;
     }
 
+    public void setVelocityVecX(float vecX) {
+        this.velocityVec.x = vecX;
+    }
+
+    public void setVelocityVecY(float vecY) {
+        this.velocityVec.y = vecY;
+    }
+
     private Vector2 velocityVec;
+
+    public void setAccelerationVecY(float acceY) {
+        this.accelerationVec.y = acceY;
+    }
+
+    public void setAccelerationVecX(float acceX) {
+        this.accelerationVec.x = acceX;
+    }
 
     private Vector2 accelerationVec;
     private float acceleration;
+
+    protected float repelAngle = 0; // Initialize the repulsion angle to a default value
+
 
     public float getMaxSpeed() {
         return maxSpeed;
@@ -88,21 +107,7 @@ cam.update();
     public  static void setWorldBounds(BaseActor b){
         setWorldBounds(b.getWidth(),b.getHeight());
     }
-
-    public void boundToWorld(){
-        if(getX()<0)
-            setX(0);
-        // check right edge
-        if (getX() + getWidth() > worldBounds.width)
-            setX(worldBounds.width - getWidth());
-// check bottom edge
-        if (getY() < 0)
-            setY(0);
-// check top edge
-        if (getY() + getHeight() > worldBounds.height)
-            setY(worldBounds.height - getHeight());
-
-    }
+boolean isBoundToWorld;
 
     public BaseActor() {
         super();
@@ -147,11 +152,86 @@ cam.update();
         maxSpeed = 1000;
         deceleration = 0;
 
+        repelAngle=0;
+
         setPosition(x,y);
         s.addActor(this);
     }
 
 
+    public void boundToWorld(){
+        isBoundToWorld=false;
+        if(getX()<0) {
+            isBoundToWorld=true;
+            setX(0);
+        }
+        // check right edge
+        if (getX() + getWidth() > worldBounds.width) {
+            isBoundToWorld=true;
+            setX(worldBounds.width - getWidth());
+        }
+// check bottom edge
+        if (getY() < 0) {
+            isBoundToWorld=true;
+            setY(0);
+        }
+// check top edge
+        if (getY() + getHeight() > worldBounds.height) {
+            setY(worldBounds.height - getHeight());
+            isBoundToWorld=true;
+        }
+        if(isBoundToWorld)return;
+        else
+            isBoundToWorld = false;
+
+    }
+
+    public void repelToWorld(float dt){
+        isBoundToWorld = false;
+
+        if (getX() < 0) {
+            isBoundToWorld = true;
+            setX(0);
+            setVelocityVecX(-getVelocityVec().x);
+            setAccelerationVecX(-getAccelerationVec().x);
+
+            repelAngle=180;
+        }
+
+        // Check right edge
+        if (getX() + getWidth() > worldBounds.width) {
+            isBoundToWorld = true;
+            setX(worldBounds.width - getWidth());
+            setVelocityVecX(-getVelocityVec().x);
+            setAccelerationVecX(-getAccelerationVec().x);
+
+            repelAngle=0;
+        }
+
+        // Check bottom edge
+        if (getY() < 0) {
+            isBoundToWorld = true;
+            setY(0);
+            setVelocityVecY(-getVelocityVec().y);
+            setAccelerationVecY(-getAccelerationVec().y);
+
+            repelAngle=90;
+        }
+
+        // Check top edge
+        if (getY() + getHeight() > worldBounds.height) {
+            isBoundToWorld = true;
+            setY(worldBounds.height - getHeight());
+            setVelocityVecY(-getVelocityVec().y);
+            setAccelerationVecY(-getAccelerationVec().y);
+
+
+            repelAngle=270;
+        }
+
+    }
+    float x = 0,y=0;
+float angle=(float) Math.toRadians(45);
     public void setMaxSpeed(float ms)
     {
         maxSpeed = ms;
@@ -172,8 +252,14 @@ cam.update();
     }
     public void accelerateAtAngle(float angle)
     {
+        // Calculate the new angle by adding the repelAngle and randomInt
+        float newAngle = angle + repelAngle ;
+
+        // Make sure the newAngle is in the range [0, 360] degrees
+        newAngle = (newAngle + 360) % 360;
+      //  System.out.println("new angle"+ newAngle);//not the proplem
         updateOrigin();
-         accelerationVec.add( new Vector2(acceleration, 0).setAngle(angle) );
+         accelerationVec.add( new Vector2(acceleration, 0).setAngle(newAngle) );
     }
 
     public void accelerateForward()
@@ -207,6 +293,23 @@ cam.update();
         return (getSpeed() > 0);
     }
 
+public void movingPhysics(float dt){//no declaration only for repeling object
+
+    velocityVec.add(accelerationVec.x*dt,accelerationVec.y*dt);
+
+    float speed =getSpeed();//speed velocity
+
+    velocityVec.add(accelerationVec.x*dt,accelerationVec.y*dt);
+
+    speed=MathUtils.clamp(speed,0,maxSpeed);
+
+
+    velocityVec.setLength(speed);//instead of setSpeed(speed);
+
+    //apply chnages to actor
+    moveBy(velocityVec.x*dt,velocityVec.y*dt);
+
+}
 
     public void applyPhysics(float dt){
 
@@ -218,7 +321,7 @@ cam.update();
         if(accelerationVec.len()==0)
             speed-=deceleration*dt;
 
-        speed=MathUtils.clamp(speed,0,maxSpeed);
+        speed=MathUtils.clamp(speed,5,maxSpeed);
 
 
         setSpeed(speed);//update speed (velocity)
