@@ -121,8 +121,8 @@ boolean isBoundToWorld;
         animationPaused = false;
 
         velocityVec = new Vector2(0,0);
-
         accelerationVec = new Vector2(0,0);
+
         acceleration = 0;
 
         maxSpeed = 1000;
@@ -144,9 +144,9 @@ boolean isBoundToWorld;
 // perform additional initialization tasks
 
 
-        velocityVec = new Vector2(0,0);
-
+        velocityVec = new Vector2(-5,0);
         accelerationVec = new Vector2(0,0);
+
         acceleration = 0;
 
         maxSpeed = 1000;
@@ -180,9 +180,7 @@ boolean isBoundToWorld;
             setY(worldBounds.height - getHeight());
             isBoundToWorld=true;
         }
-        if(isBoundToWorld)return;
-        else
-            isBoundToWorld = false;
+
 
     }
 
@@ -230,8 +228,8 @@ boolean isBoundToWorld;
         }
 
     }
-    float x = 0,y=0;
-float angle=(float) Math.toRadians(45);
+
+
     public void setMaxSpeed(float ms)
     {
         maxSpeed = ms;
@@ -250,6 +248,7 @@ float angle=(float) Math.toRadians(45);
         setOrigin(getWidth() / 2, getHeight() / 2);//update origin point
 
     }
+
     public void accelerateAtAngle(float angle)
     {
         // Calculate the new angle by adding the repelAngle and randomInt
@@ -258,13 +257,13 @@ float angle=(float) Math.toRadians(45);
         // Make sure the newAngle is in the range [0, 360] degrees
         newAngle = (newAngle + 360) % 360;
       //  System.out.println("new angle"+ newAngle);//not the proplem
-        updateOrigin();
+//        updateOrigin();
          accelerationVec.add( new Vector2(acceleration, 0).setAngle(newAngle) );
     }
 
     public void accelerateForward()
     {
-        updateOrigin();
+       // updateOrigin();
         accelerateAtAngle( getRotation() );
     }
     public void setSpeed(float speed)
@@ -301,7 +300,7 @@ public void movingPhysics(float dt){//no declaration only for repeling object
 
     velocityVec.add(accelerationVec.x*dt,accelerationVec.y*dt);
 
-    speed=MathUtils.clamp(speed,0,maxSpeed);
+    speed=MathUtils.clamp(speed,2,maxSpeed);
 
 
     velocityVec.setLength(speed);//instead of setSpeed(speed);
@@ -321,7 +320,7 @@ public void movingPhysics(float dt){//no declaration only for repeling object
         if(accelerationVec.len()==0)
             speed-=deceleration*dt;
 
-        speed=MathUtils.clamp(speed,5,maxSpeed);
+        speed=MathUtils.clamp(speed,0,maxSpeed);
 
 
         setSpeed(speed);//update speed (velocity)
@@ -332,6 +331,74 @@ public void movingPhysics(float dt){//no declaration only for repeling object
         accelerationVec.set(0,0);
 
     }
+
+
+    public void setTexture(Texture t)
+    {
+        textureRegion.setRegion(t);
+        setSize( t.getWidth(), t.getHeight() );
+        rectangle.setSize( t.getWidth(), t.getHeight() );
+    }
+
+    public void removeTexture()
+    {
+        //setSize(0, 0); // Optionally, reset the size as well if needed
+       // rectangle.setSize(0, 0);
+
+    }
+    public boolean overlaps(BaseActor other) {
+        Rectangle thisRectangle = getCollisionRectangle();
+        Rectangle otherRectangle = other.getCollisionRectangle();
+
+        return thisRectangle.overlaps(otherRectangle);
+    }
+
+    public Rectangle getCollisionRectangle() {
+        Rectangle rect = new Rectangle(getX(), getY(), getWidth(), getHeight());
+        rect.setCenter(getX() + getOriginX(), getY() + getOriginY());
+        return rect;
+    }
+
+    //like update but for actor
+    public void act(float dt) {
+
+      super.act(dt);
+
+        if(!animationPaused){//if not paused
+            elapsedTime+=dt;
+        }
+
+    }
+
+
+
+    @Override
+    public void draw(Batch batch, float parentAlpha) {
+        super.draw(batch, parentAlpha);
+        Color c = getColor(); // used to apply tint color effect
+        batch.setColor(c.r, c.g, c.b, c.a);
+
+
+        if (isVisible()&&animation!=null)
+            batch.draw(animation.getKeyFrame(elapsedTime),
+                    getX(), getY(), getOriginX(), getOriginY(),
+                    getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
+
+        else if(isVisible()){
+            batch.draw(textureRegion,
+                    getX(), getY(), getOriginX(), getOriginY(),
+                    getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
+        }
+    }
+
+
+    public TextureRegion getTextureRegion() {
+        return textureRegion;
+    }
+
+
+
+
 
 
     public void setAnimationPaused(boolean pause) {
@@ -348,7 +415,7 @@ public void movingPhysics(float dt){//no declaration only for repeling object
 
         setSize(w, h);//size of actor
 
-   setOrigin(w / 2, h / 2);//center of actor
+        setOrigin(w / 2, h / 2);//center of actor
 
     }
 
@@ -408,66 +475,4 @@ public void movingPhysics(float dt){//no declaration only for repeling object
 //    setAnimation(anim);
 //return anim;
 //}
-
-    public void setTexture(Texture t)
-    {
-        textureRegion.setRegion(t);
-        setSize( t.getWidth(), t.getHeight() );
-        rectangle.setSize( t.getWidth(), t.getHeight() );
-    }
-
-    public void removeTexture()
-    {
-        //setSize(0, 0); // Optionally, reset the size as well if needed
-       // rectangle.setSize(0, 0);
-
-    }
-    public boolean overlaps(BaseActor other) {
-        Rectangle thisRectangle = getCollisionRectangle();
-        Rectangle otherRectangle = other.getCollisionRectangle();
-
-        return thisRectangle.overlaps(otherRectangle);
-    }
-
-    public Rectangle getCollisionRectangle() {
-        Rectangle rect = new Rectangle(getX(), getY(), getWidth(), getHeight());
-        rect.setCenter(getX() + getOriginX(), getY() + getOriginY());
-        return rect;
-    }
-
-    //like update but for actor
-    public void act(float dt) {
-
-        super.act(dt);
-
-        if(!animationPaused){//if not paused
-            elapsedTime+=dt;
-        }
-
-    }
-
-
-
-    public void draw(Batch batch, float parentAlpha) {
-        super.draw(batch, parentAlpha);
-        Color c = getColor(); // used to apply tint color effect
-        batch.setColor(c.r, c.g, c.b, c.a);
-
-
-        if (isVisible()&&animation!=null)
-            batch.draw(animation.getKeyFrame(elapsedTime),
-                    getX(), getY(), getOriginX(), getOriginY(),
-                    getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
-
-        else if(isVisible()){
-            batch.draw(textureRegion,
-                    getX(), getY(), getOriginX(), getOriginY(),
-                    getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
-        }
-    }
-
-
-    public TextureRegion getTextureRegion() {
-        return textureRegion;
-    }
 }

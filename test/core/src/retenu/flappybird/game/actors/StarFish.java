@@ -36,7 +36,7 @@ public class StarFish extends BaseActor {
 
     repelToWorld(dt);
 
-        System.out.println("angle to accelarate "+getMotionAngle());
+//        System.out.println("angle to accelarate "+getMotionAngle());
        accelerateAtAngle(randomInt);
 
 

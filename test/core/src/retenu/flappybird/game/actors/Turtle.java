@@ -51,19 +51,22 @@ public boolean isAbleToMove(){
     }
     @Override
     public void act(float dt) {
-        super.act(dt);
+       super.act(dt);
 
 boundToWorld();
         alignCamera();
 if(ableToMove){
+    updateOrigin();
     if(isPressing){
 
         turtleMouseInput(dt);
         setAbleToMove(true);
+
     }
     else if(!isPressing){
         turtleInputs(dt);
     }
+
 
 //dt=dt;
     //turtleMouseInput(dt);
@@ -94,17 +97,18 @@ if(ableToMove){
         float angleRadians = MathUtils.atan2(mousePos.y - actorY, mousePos.x - actorX);
         float angleDegrees = angleRadians * MathUtils.radiansToDegrees;
 
-        if(ableToMove) {
+//        if(ableToMove) {
             accelerateAtAngle(angleDegrees);
             applyPhysics(dt);
 
             // Optionally, you can set the turtle's rotation to face the mouse cursor
             setRotation(angleDegrees);
 
-        }
+//        }
     }
 
     private void turtleInputs(float dt){
+
         if(Gdx.input.isKeyPressed(Keys.LEFT))
             accelerateAtAngle(180);
         if(Gdx.input.isKeyPressed(Keys.RIGHT))
@@ -123,7 +127,6 @@ if(ableToMove){
 
         if ( getSpeed() > 0 )
             setRotation( getMotionAngle() );
-
 
     }
     boolean isPressing;

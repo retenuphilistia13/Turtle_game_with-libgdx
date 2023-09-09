@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import retenu.flappybird.game.GameState;
+import retenu.flappybird.game.VirtualController;
 import retenu.flappybird.game.actors.BaseActor;
 import retenu.flappybird.game.actors.StarFish;
 import retenu.flappybird.game.actors.Turtle;
@@ -134,7 +135,13 @@ count++;
 
         turtle = new Turtle(0,70,mainStage);
 
-        Gdx.input.setInputProcessor(turtle);
+        VirtualController controller=new VirtualController(turtle);
+        controller.setPosition(0,0);
+
+//        uiStage.addActor(controller);
+
+        Gdx.input.setInputProcessor(turtle);//mouse input
+
         turtle.setSize(70,70);
 
         starFishList=new ArrayList<>();
