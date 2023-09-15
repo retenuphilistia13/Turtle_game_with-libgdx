@@ -5,13 +5,15 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import retenu.flappybird.game.GameState;
-import retenu.flappybird.game.VirtualController;
 import retenu.flappybird.game.actors.BaseActor;
+//import retenu.flappybird.game.actors.Controller;
 import retenu.flappybird.game.actors.StarFish;
 import retenu.flappybird.game.actors.Turtle;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+
+import static retenu.flappybird.game.BaseGame.setActiveScreen;
 
 public class LevelScreen extends BaseScreen{
 
@@ -57,7 +59,7 @@ public class LevelScreen extends BaseScreen{
 
         }
 
-
+///check winning/////
         if(!g.isWin()&&winPoints==userPoints&&g!=GameState.AFTERWIN){
 //			win=true;
             g=GameState.WIN;
@@ -91,7 +93,10 @@ public class LevelScreen extends BaseScreen{
 
             g=GameState.AFTERWIN;
         }
-
+        if(g==GameState.AFTERWIN){
+            if(!winMessage.hasActions())
+                setActiveScreen( new LevelScreen() );
+        }
 // clear screen
         Gdx.gl.glClearColor(0,0,0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -105,7 +110,7 @@ public class LevelScreen extends BaseScreen{
 
 
     }
-
+//    Controller touchpad;
     @Override
     public void initialize() {
 
@@ -115,6 +120,11 @@ public class LevelScreen extends BaseScreen{
         ocean = new BaseActor(0,0, mainStage);
         ocean.loadTexture( "assets/ocean.png" );
 
+
+//        touchpad=new Controller(20.0f,);
+//
+//        touchpad.setBounds(Gdx.graphics.getWidth()/22,Gdx.graphics.getWidth()/22,Gdx.graphics.getWidth()/5,Gdx.graphics.getWidth()/5);
+//        touchpad.getColor().a=0.70f;
        // System.out.println("width "+screenWidth+ " \nheight "+screenHeight);
 float multi=1.0f;
 int count=0;
@@ -135,10 +145,7 @@ count++;
 
         turtle = new Turtle(0,70,mainStage);
 
-        VirtualController controller=new VirtualController(turtle);
-        controller.setPosition(0,0);
 
-//        uiStage.addActor(controller);
 
         Gdx.input.setInputProcessor(turtle);//mouse input
 
@@ -146,31 +153,65 @@ count++;
 
         starFishList=new ArrayList<>();
 
-        generateStars();
+        starPlacement();
 
+    }
+
+    private void starPlacement(){
+        int minX =0;
+        int maxX = screenWidth;
+
+        int minY= (int) (turtle.getY()+(turtle.getHeight()*1.1));
+        int maxY = screenHeight ;
+
+        int starFishNumber=20;
+
+        int startIndex=0;
+//east south
+        starFishNumber=5;
+
+        minX = (int) (turtle.getX()+(turtle.getWidth()))*2;
+        maxX = screenWidth;
+        maxY = (int) (turtle.getY()+turtle.getHeight()) ;
+        minY=0;
+        startIndex=starFishList.size();//0
+
+        generateStars(minX,maxX,minY,maxY,starFishNumber,startIndex);
+
+        //everywhere else
+        minX =0;
+        maxX = screenWidth;
+
+        minY= (int) (turtle.getY()+(turtle.getHeight()*1.1));
+        maxY = screenHeight ;
+
+        startIndex=starFishList.size();
+        starFishNumber=20;
+
+        generateStars(minX,maxX,minY,maxY,starFishNumber,startIndex);
 
 
     }
 
-    private void generateStars(){
+    private void generateStars(int minX,int maxX,int minY,int maxY,int starFishNumber,int startIndex){
+
         Action spin ;
 
-        int minX =0;
-        int maxX = screenWidth;
 
-        int minY= 0;
-        int maxY = screenHeight ;
         int randomInt ;
         boolean loop;
 
         int loopCount=0;
 
-        int starFishNumber=10;
 
-        for (int i = 0; i < starFishNumber; i++) {
+        for (int i = startIndex; i < starFishNumber; i++) {
 
             StarFish starFish=new StarFish(); // Create a new StarFish object in each iteration
+            float factor=0.4f;
+            float width=starFish.getWidth()*factor;
+            float height=starFish.getHeight()*factor;
 
+            starFish.setBounds(0,0,width,height);
             do {
 
                 loopCount++;
@@ -198,11 +239,12 @@ count++;
 
                 starFish = new StarFish(x, y, mainStage);
                 //scale it down
-                float factor=0.4f;
-                starFish.setBounds(x,y,starFish.getWidth()*factor,starFish.getHeight()*factor);
+
+                starFish.setBounds(x,y,width,height);
+
                 //starFish.setOrigin(starFish.getWidth()/2,starFish.getHeight()/2);//take the origin of the modified size starfish
                 starFish.updateOrigin();
-                if(isStarPlace(starFish)==false||isStarTurtleCollide(starFish,turtle)) {
+                if(isStarTurtleCollide(starFish,turtle)||isStarPlace(starFish)==false) {//isStarPlace(starFish)==false||
                     loop=true;
                     starFish.remove();
                 }else {
@@ -213,9 +255,9 @@ count++;
             starFishList.add(starFish);
 
             ///spining action for star
-            randomInt = 4 + (int) (Math.random() * (8 - 4));
+            randomInt = 6 + (int) (Math.random() * (12 - 6));
 
-            int spinAmount=20 + (int) (Math.random() * (60 - 20));
+            int spinAmount=50 + (int) (Math.random() * (60 - 50));
             if(i%2==0)
                 spin = Actions.rotateBy(spinAmount, randomInt);
             else{

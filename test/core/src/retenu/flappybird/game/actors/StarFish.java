@@ -22,7 +22,7 @@ public class StarFish extends BaseActor {
         loadTexture("assets/starfish.png");
 
         setAcceleration(10);
-        setMaxSpeed(3 + (int) (Math.random() * (10 - 3)));
+        setMaxSpeed(3 + (int) (Math.random() * (7 - 3)));
 
         //   setDeceleration(0);
         randomInt = -360 + (int) (Math.random() * (360 - -360));
@@ -36,7 +36,7 @@ public class StarFish extends BaseActor {
 
     repelToWorld(dt);
 
-//        System.out.println("angle to accelarate "+getMotionAngle());
+        System.out.println("angle to accelarate "+getMotionAngle());
        accelerateAtAngle(randomInt);
 
 
